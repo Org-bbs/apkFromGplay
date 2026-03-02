@@ -61,4 +61,20 @@ class ApkDownloadResolverTest {
 
         assertNull(url)
     }
+
+    @Test
+    fun `check exception should contain http code in summary`() {
+        val exception = ApkDownloadResolver.ApkDownloadCheckException(
+            listOf(
+                ApkDownloadResolver.DownloadProbeFailure(
+                    source = "Aptoide",
+                    url = "https://example.com/a.apk",
+                    httpCode = 403,
+                    reason = "HTTP 403"
+                )
+            )
+        )
+
+        assertEquals("Aptoide: HTTP 403", exception.failureSummary)
+    }
 }

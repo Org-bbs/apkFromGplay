@@ -37,6 +37,20 @@ class ApkInstaller(
         }
     }
 
+    fun getDownloadFailureReason(downloadId: Long): String? {
+        val query = DownloadManager.Query().setFilterById(downloadId)
+        downloadManager.query(query).use { cursor ->
+            if (!cursor.moveToFirst()) return null
+            val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+            val reasonIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
+            if (statusIndex < 0 || reasonIndex < 0) return null
+            val status = cursor.getInt(statusIndex)
+            if (status != DownloadManager.STATUS_FAILED) return null
+            val reasonCode = cursor.getInt(reasonIndex)
+            return mapFailureReason(reasonCode)
+        }
+    }
+
     fun installDownload(downloadId: Long): InstallResult {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             !context.packageManager.canRequestPackageInstalls()
@@ -75,5 +89,21 @@ class ApkInstaller(
 
     companion object {
         private const val APK_MIME_TYPE = "application/vnd.android.package-archive"
+
+        private fun mapFailureReason(reasonCode: Int): String {
+            val reasonName = when (reasonCode) {
+                DownloadManager.ERROR_CANNOT_RESUME -> "ERROR_CANNOT_RESUME"
+                DownloadManager.ERROR_DEVICE_NOT_FOUND -> "ERROR_DEVICE_NOT_FOUND"
+                DownloadManager.ERROR_FILE_ALREADY_EXISTS -> "ERROR_FILE_ALREADY_EXISTS"
+                DownloadManager.ERROR_FILE_ERROR -> "ERROR_FILE_ERROR"
+                DownloadManager.ERROR_HTTP_DATA_ERROR -> "ERROR_HTTP_DATA_ERROR"
+                DownloadManager.ERROR_INSUFFICIENT_SPACE -> "ERROR_INSUFFICIENT_SPACE"
+                DownloadManager.ERROR_TOO_MANY_REDIRECTS -> "ERROR_TOO_MANY_REDIRECTS"
+                DownloadManager.ERROR_UNHANDLED_HTTP_CODE -> "ERROR_UNHANDLED_HTTP_CODE"
+                DownloadManager.ERROR_UNKNOWN -> "ERROR_UNKNOWN"
+                else -> "UNKNOWN"
+            }
+            return "$reasonName($reasonCode)"
+        }
     }
 }

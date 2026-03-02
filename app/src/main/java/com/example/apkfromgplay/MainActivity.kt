@@ -16,6 +16,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apkfromgplay.data.ApkDownloadResolver.ApkDownloadCheckException
 import com.example.apkfromgplay.databinding.ActivityMainBinding
 import com.example.apkfromgplay.di.ServiceLocator
 import com.example.apkfromgplay.install.ApkInstaller
@@ -43,8 +44,14 @@ class MainActivity : AppCompatActivity() {
                 val downloadId = apkInstaller.enqueueDownload(app, downloadUrl)
                 pendingDownloadIds += downloadId
                 toast(getString(R.string.download_started))
-            }.onFailure {
-                toast(getString(R.string.download_failed))
+            }.onFailure { throwable ->
+                when (throwable) {
+                    is ApkDownloadCheckException -> {
+                        toast(getString(R.string.download_precheck_failed, throwable.failureSummary))
+                    }
+
+                    else -> toast(getString(R.string.download_failed))
+                }
             }
         }
     }
@@ -56,7 +63,12 @@ class MainActivity : AppCompatActivity() {
             if (downloadId <= 0L || !pendingDownloadIds.remove(downloadId)) return
 
             if (!apkInstaller.isDownloadSuccessful(downloadId)) {
-                toast(getString(R.string.download_failed))
+                val reason = apkInstaller.getDownloadFailureReason(downloadId)
+                if (reason != null) {
+                    toast(getString(R.string.download_failed_with_code, reason))
+                } else {
+                    toast(getString(R.string.download_failed))
+                }
                 return
             }
 
