@@ -37,13 +37,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val appAdapter = AppListAdapter { app ->
-        runCatching {
-            val downloadUrl = viewModel.resolveDownloadUrl(app.packageName)
-            val downloadId = apkInstaller.enqueueDownload(app, downloadUrl)
-            pendingDownloadIds += downloadId
-            toast(getString(R.string.download_started))
-        }.onFailure {
-            toast(getString(R.string.download_failed))
+        lifecycleScope.launch {
+            runCatching {
+                val downloadUrl = viewModel.resolveDownloadUrl(app.packageName)
+                val downloadId = apkInstaller.enqueueDownload(app, downloadUrl)
+                pendingDownloadIds += downloadId
+                toast(getString(R.string.download_started))
+            }.onFailure {
+                toast(getString(R.string.download_failed))
+            }
         }
     }
 

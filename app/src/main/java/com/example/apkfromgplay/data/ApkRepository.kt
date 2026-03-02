@@ -4,7 +4,7 @@ import com.example.apkfromgplay.data.model.PlayApp
 
 interface ApkRepository {
     suspend fun searchApps(query: String): List<PlayApp>
-    fun resolveApkDownloadUrl(packageName: String): String
+    suspend fun resolveApkDownloadUrl(packageName: String): String
 }
 
 class NetworkApkRepository(
@@ -14,7 +14,7 @@ class NetworkApkRepository(
 
     override suspend fun searchApps(query: String): List<PlayApp> = searchService.searchApps(query)
 
-    override fun resolveApkDownloadUrl(packageName: String): String {
+    override suspend fun resolveApkDownloadUrl(packageName: String): String {
         return downloadResolver.resolveDownloadUrl(packageName)
     }
 }

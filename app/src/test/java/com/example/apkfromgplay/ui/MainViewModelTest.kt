@@ -55,7 +55,7 @@ class MainViewModelTest {
     ) : ApkRepository {
         override suspend fun searchApps(query: String): List<PlayApp> = apps
 
-        override fun resolveApkDownloadUrl(packageName: String): String {
+        override suspend fun resolveApkDownloadUrl(packageName: String): String {
             return "https://example.com/$packageName.apk"
         }
     }

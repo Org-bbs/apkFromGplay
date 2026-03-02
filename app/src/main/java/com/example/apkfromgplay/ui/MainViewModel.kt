@@ -51,7 +51,7 @@ class MainViewModel(
         }
     }
 
-    fun resolveDownloadUrl(packageName: String): String {
+    suspend fun resolveDownloadUrl(packageName: String): String {
         return repository.resolveApkDownloadUrl(packageName)
     }
 
