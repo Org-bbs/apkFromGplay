@@ -29,12 +29,25 @@ jobs:
       - name: Build and run unit + Roborazzi tests
         run: ./gradlew --no-daemon clean testDebugUnitTest assembleDebug
 
-      - name: Upload debug APK
+      - name: Prepare APK artifacts
+        if: always()
+        run: |
+          mkdir -p artifacts/apk
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            cp app/build/outputs/apk/debug/app-debug.apk artifacts/apk/app-debug.apk
+            cp app/build/outputs/apk/debug/output-metadata.json artifacts/apk/output-metadata.json
+            sha256sum artifacts/apk/app-debug.apk > artifacts/apk/SHA256SUMS.txt
+          else
+            echo "APK not generated in this run." > artifacts/apk/README.txt
+          fi
+
+      - name: Upload installable APK package
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-installable-apk
+          path: artifacts/apk/
+          retention-days: 14
           if-no-files-found: warn
 
       - name: Upload unit test reports
@@ -56,3 +69,14 @@ jobs:
             app/build/outputs/roborazzi/
             app/build/reports/roborazzi/
           if-no-files-found: warn
+
+      - name: Add APK install instructions
+        if: always()
+        run: |
+          {
+            echo "## APK 下载与安装"
+            echo ""
+            echo "- Artifact 名称：\`app-installable-apk\`"
+            echo "- 包含文件：\`app-debug.apk\`、\`output-metadata.json\`、\`SHA256SUMS.txt\`"
+            echo "- 安装示例：\`adb install -r app-debug.apk\`"
+          } >> "$GITHUB_STEP_SUMMARY"
