@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">APK From GPlay</string>
+    <string name="search_hint">输入应用关键词（Google Play）</string>
+    <string name="search">搜索</string>
+    <string name="download_and_install">下载并安装 APK</string>
+    <string name="developer_prefix">开发者：%1$s</string>
+    <string name="package_prefix">包名：%1$s</string>
+    <string name="download_started">下载任务已创建，完成后将尝试安装</string>
+    <string name="search_empty">请输入搜索关键词</string>
+    <string name="search_error">搜索失败：%1$s</string>
+    <string name="no_result">未找到匹配应用</string>
+    <string name="install_permission_needed">请先允许安装未知来源应用</string>
+    <string name="download_failed">下载失败，请稍后重试</string>
+    <string name="downloading">正在处理...</string>
+</resources>
